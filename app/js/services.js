@@ -517,7 +517,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils'])
     })
 
   .service('AppIncognitoStateManager',
-    function($rootScope, $modal, $modalStack, $filter, $q, qSync, MtpApiManager, AppUsersManager, InAPIManager, ServerTimeManager, Storage, _) {
+    function($rootScope, $modal, $modalStack, $filter, $q, qSync, MtpApiManager, AppUsersManager, InAPIManager, ServerTimeManager, ErrorService, Storage, _) {
       var accountsList = [];
       var currentAccountInfo = {};
       var isLoggedIn = false;
@@ -580,14 +580,16 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils'])
       }
 
       function transfer(data) {
-        const transferData = {
-          amount: data.amount*1e9,
+        var myId = String(AppUsersManager.getSelf().id);
+        var transferData = {
+          amount: data.amount * (10 ** data.decimalAmount),
           fee: data.fee()*1e9,
-          message: data.message
+          message: data.message,
+          tokenId: data.tokenId,
+          senderAccount: currentAccountInfo.name,
+          senderId: myId,
         }
-        transferData.senderAccount = currentAccountInfo.name;
-        transferData.senderId = String(AppUsersManager.getSelf().id);
-        if(data.to.value.length >= 100){
+        if(data.to.value.length >= 100) {
           transferData.address = data.to.value;
           return InAPIManager.transfer(transferData).then(function(data) {
             return data;
@@ -601,6 +603,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils'])
           });
         }
         return MtpApiManager.invokeApi('contacts.search', { q: data.to.value, limit: 1 }).then(function(result) {
+          if(!result.results.length){
+            throw ErrorService.show({ title: "Did not find a user in Telegram with current username" });
+          }
           transferData.receiverId = String(result.results[0].user_id);
           return InAPIManager.transfer(transferData).then(function(data) {
             return data;
