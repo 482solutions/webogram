@@ -582,7 +582,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils'])
       function transfer(data) {
         var myId = String(AppUsersManager.getSelf().id);
         var transferData = {
-          amount: data.amount * (10 ** data.decimalAmount),
+          amount: data.amount * Math.pow(10, data.decimalAmount),
           fee: data.fee()*1e9,
           message: data.message,
           tokenId: data.tokenId,
