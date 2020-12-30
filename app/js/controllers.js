@@ -4914,17 +4914,33 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       //   })
       // }
 
-      $scope.showTransferModal = function() {
+      $scope.showTransferModal = function(tokenId, decimalAmount) {
+        var scope = $rootScope.$new();
+        scope.transferData = {
+          tokenId: tokenId,
+          decimalAmount: decimalAmount,
+          amount: 0,
+          receiver: {
+            type: null,
+            value: null
+          },
+          fee: function() {
+            const fee = this.amount ? 0.0000001 : 0;
+            return Number(fee).toFixed(7);
+          },
+          message: null
+        }
         $modal.open({
           templateUrl: templateUrl('incognito_transfer_modal'),
           controller: 'IncognitoTransferModalController',
           windowClass: 'settings_modal_window mobile_modal',
+          scope: scope,
           backdrop: 'single'
         })
       }
 
       $scope.showAboutCompanyDialog = function(){
-        var $scope = $rootScope.$new()
+        var $scope = $rootScope.$new();
 
         $modal.open({
           templateUrl: templateUrl('incognito_about_company_modal'),
@@ -5022,24 +5038,15 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     })
 
   .controller('IncognitoTransferModalController',
-    function($rootScope, $scope, $timeout, $modal, AppUsersManager, AppChatsManager, AppIncognitoStateManager, InAPIManager, Storage, NotificationsManager, MtpApiFileManager, PasswordManager, ApiUpdatesManager, ChangelogNotifyService, LayoutSwitchService, WebPushApiManager, AppRuntimeManager, ErrorService, _) {
+    function($rootScope, $scope, $timeout, $modal, AppUsersManager, AppChatsManager, AppIncognitoStateManager, InAPIManager, Storage, NotificationsManager, MtpApiFileManager, RichTextProcessor, ApiUpdatesManager, ChangelogNotifyService, LayoutSwitchService, WebPushApiManager, AppRuntimeManager, ErrorService, _) {
       $scope.isLoading = false;
-      $scope.transferData = {
-        amount: 0,
-        receiver: {
-          type: null,
-          value: null
-        },
-        fee: function() {
-          const fee = this.amount ? 0.0000001 : 0;
-          return Number(fee).toFixed(7);
-        },
-        message: null
-      }
       $scope.transfer = function() {
         $scope.isLoading = true;
         AppIncognitoStateManager.transfer($scope.transferData).then(function(data){
-          ErrorService.alert( "Transfer was successful");
+
+          ErrorService.show({
+            title_html: '<a  href="https://mainnet.incognito.org/tx/' + data.history.txId +' "target="_blank">Transfer was successful</a>',
+          })
           $scope.isLoading = false
           $scope.$close();
         });

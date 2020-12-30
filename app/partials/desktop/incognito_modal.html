@@ -39,16 +39,13 @@
             ${{ account.balance }}
           </div>
           <div class="md_incognito_small">Balance</div>
-          <button type="button" class="btn btn-primary md_incognito_button"
-                  ng-click="showTransferModal()">Send my crypto
-          </button>
         </div>
       </div>
       <div my-following-tokens-list class="nano" my-infinite-scroller>
         <ul ng-switch-when="false"
             class="full_width md_incognito_list clearfix tokens_wrap nano-content">
-          <li class="md_incognito_modal_row_align_center md_incognito_modal_row_justify_between"
-              ng-repeat="wallet in account.followingTokens">
+          <li class="md_incognito_modal_row_align_center md_incognito_modal_row_justify_between clickable"
+              ng-repeat="wallet in account.followingTokens" ng-click="showTransferModal(wallet.tokenId, wallet.decimals)">
         <span class="md_incognito_modal_column_align_start">
           <span class="md_incognito_modal_row_align_center">
           <span>{{ wallet.name }}</span>
