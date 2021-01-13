@@ -584,6 +584,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils'])
         var transferData = {
           amount: data.amount * Math.pow(10, data.decimalAmount),
           fee: data.fee()*1e9,
+          privacyFee: "",
           message: data.message,
           tokenId: data.tokenId,
           senderAccount: currentAccountInfo.name,
